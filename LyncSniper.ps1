@@ -80,7 +80,7 @@ function Invoke-LyncSpray
       This module will attempt to discover the URL for the Skype for Business deployment, if the URL cannot be discovered it can be forced by the user. The Office365 switch should be applied for Office 365 tenants so that the correct endpoints are used.
       The password supplied on the -Password switch will be sprayed against all user accounts.
     .PARAMETER UserList
-      A txt file of target users to spray the password agaist
+      A txt file of target users to spray the password against
     .PARAMETER Password
       The password to spray against the user list
     .PARAMETER Office365
@@ -422,8 +422,10 @@ function Invoke-AuthenticateO365
       The Windows Live username to authenticate with
     .PARAMETER Password
       The Windows Live password to authenticate with
+    .PARAMETER ShowResponses
+      Use yes/no to show the XML response for the request
     .EXAMPLE
-      C:\PS> Invoke-AuthenticateO365 -Username user@domain.com -Password Password1
+      C:\PS> Invoke-AuthenticateO365 -Username user@domain.com -Password Password1 -ShowResponses yes
       Description
       -----------
       This command will attempt to authenticate to the Office 365 Skype for Business service.
@@ -436,7 +438,11 @@ function Invoke-AuthenticateO365
 
     [Parameter(Position = 1, Mandatory = $True)]
     [string]
-    $Password = ""
+    $Password = "",
+
+		[Parameter(Position = 2, Mandatory = $False)]
+    [string]
+    $ShowResponses = ""
   )
 
   try
@@ -496,6 +502,12 @@ function Invoke-AuthenticateO365
     } finally {
       $response.Dispose()
     }
+
+		if ($ShowResponses.Contains("yes"))
+		{
+			Write-Host $data.OuterXml
+		}
+
     $BinarySecurityToken = $data.Envelope.Body.RequestSecurityTokenResponse.RequestedSecurityToken.BinarySecurityToken.InnerText
     if ($data.OuterXml.Contains("you must use multi-factor"))
     {
@@ -507,7 +519,7 @@ function Invoke-AuthenticateO365
     }
     elseif($data.OuterXml.Contains("Error validating credentials"))
     {
-        Write-Verbose "[*] Invalid credentials: $($Username):$($Password)"
+      Write-Verbose "[*] Invalid credentials: $($Username):$($Password)"
     }
     elseif($BinarySecurityToken)
     {
