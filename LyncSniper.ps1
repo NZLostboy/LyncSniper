@@ -17,6 +17,7 @@
 #>
 
 Import-Module '.\Tunable-SSL-Validator\TunableSSLValidator.psm1'
+Add-Type -AssemblyName System.Web
 
 function Invoke-GetAutoDiscoverURL
 {
