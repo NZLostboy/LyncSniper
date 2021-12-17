@@ -32,10 +32,10 @@ function Invoke-GetAutoDiscoverURL
       Optional Dependencies: None
     .DESCRIPTION
       This module will attempt to determine a valid AutoDiscover URL simply by prepending lyncdiscover to the domain and checking for HTTPS
-    .PARAMETER UserName
+    .PARAMETER Username
       The user's name in the form of an e-mail address
     .EXAMPLE
-      C:\PS> Invoke-GetAutoDiscoverURL -UserName target-user@domain.com
+      C:\PS> Invoke-GetAutoDiscoverURL -Username target-user@domain.com
       Description
       -----------
       This command will attempt to connect to https://lyncdiscover.domain.com
@@ -216,7 +216,7 @@ function Invoke-LyncBrute
     .PARAMETER TimeDelay
       Attempt 3 passwords then sleep for this delay inbetween password attempts
     .EXAMPLE
-      C:\PS> Invoke-LyncBrute -PassList .\passwords.txt -UserName foo.bar@domain.com -TimeDelay 60
+      C:\PS> Invoke-LyncBrute -PassList .\passwords.txt -Username foo.bar@domain.com -TimeDelay 60
       Description
       -----------
       This command will bruteforce the supplied username with the passwords in the supplied password list, sleeping for 60 seconds every 3 attempts. *BEWARE OF ACCOUNT LOCKOUTS*
